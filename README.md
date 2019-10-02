@@ -11,6 +11,18 @@ go get github.com/go-sql-driver/mysql
 ```
 Also, you need rename ```config.example.json``` to ```config.json``` and edit this
 
+Sample sql:
+```sql
+CREATE DATABASE todo;
+USE todo;
+CREATE TABLE quests
+(
+    id     INT(11) AUTO_INCREMENT PRIMARY KEY,
+    quest  VARCHAR(3000) NOT NULL,
+    status int(1) NOT NULL
+);
+```
+
 #### Frontend
 Frontend-part locate to ```index.html```
 
