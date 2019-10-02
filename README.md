@@ -1,7 +1,5 @@
 # ToDo List
 
-This Application written on Golang.
-
 Requiriements:
 1. Go 1.12 => above
 2. MySQL 5.8 => above (Testing on MySQL 8 Community Edition)
