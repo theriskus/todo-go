@@ -1,9 +1,10 @@
 # ToDo List
 
-Requiriements:
+#### Requiriements:
 1. Go 1.12 => above
-2. MySQL 5.8 => above (Testing on MySQL 8 Community Edition)
+2. MySQL 5.7 => above (Testing on MySQL 8 Community Edition)
 
+#### Running
 For running this app you needed this packages:
 ```sh
 go get github.com/gorilla/websocket
