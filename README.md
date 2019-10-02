@@ -9,6 +9,7 @@ For running this app you needed this packages:
 go get github.com/gorilla/websocket
 go get github.com/go-sql-driver/mysql
 ```
+Also, you need rename ```config.example.json``` to ```config.json``` and edit this
 
 #### Frontend
 Frontend-part locate to ```index.html```
