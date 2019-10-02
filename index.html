@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <script defer src="https://use.fontawesome.com/releases/v5.0.2/js/all.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+    <title>Todo list</title>
+</head>
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <form onsubmit="createQuest(); return false;">
+                    <div class="form-group">
+                        <label for="quest">Новая задача</label>
+                        <input type="text" class="form-control" id="quest" placeholder="Текст новой задачи">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Поставить</button>
+                    <button onclick="getUpdate(); return false;" class="btn btn-outline-primary">Обновить</button>
+                </form>
+            </div>
+        </div>
+        <div class="row" id="layout"></div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <script>
+        let conn = new WebSocket("ws://localhost:9900/ws");
+        conn.onclose = function(evt) {
+            console.log("Connection closed");
+            location.reload();
+        };
+        conn.onmessage = function(evt) {
+            if (evt.data == "update") {
+                getUpdate();
+            }
+        };
+
+        async function quests(action, payload) {
+            let response = await fetch("http://localhost:9900/" + action, {
+                method: "POST",
+                body: JSON.stringify(payload)
+            });
+            if (response.ok) {
+                let data = await response.json();
+                if (action == 'index') {
+                    return data;
+                }
+            }
+        }
+
+        function drawStr(text, id, status = 0) {
+            let color = 'info';
+            switch (status) {
+                case 1:
+                    color = 'success';
+                    break;
+            }
+            const statusTemplate = '<span class="float-right">' +
+                    '<button class="btn btn-outline-success" onclick="updateQuest(' + id + ',1,this); return false;" ' +
+                    'style="margin: -10px;">' +
+                    'Выполнено' +
+                    '</button>' +
+                    '</span>';
+            return '<div class="col-md-12" id="quest' + id + '">' +
+                '<div class="alert alert-' + color + ' alert-dismissible fade show" role="alert">' +
+                text + (status == 0 ? statusTemplate : '') +
+                '<button type="button" class="close" data-dismiss="alert" aria-label="Close" ' +
+                'onclick="deleteQuest(' + id + ')">' +
+                '<span aria-hidden="true">&times;</span>' +
+                '</button>' +
+                '</div>' +
+                '</div>';
+        }
+        async function updateQuest(id, status, th) {
+
+            let data = await quests('update', {
+                "id": id,
+                "status": status
+            });
+            th.remove();
+            let quest = document.querySelector('#quest' + id + ' div')
+            quest.classList.remove("alert-info");
+            quest.classList.add("alert-success");
+            conn.send("update");
+        }
+
+        async function getUpdate() {
+            document.getElementById('layout').innerHTML = '';
+            onLoad();
+        }
+
+        async function deleteQuest(id) {
+            let data = await quests('delete', {
+                "id": id
+            });
+            document.getElementById('quest' + id).remove();
+            conn.send("update");
+        }
+
+        async function createQuest() {
+            let data = await quests('create', {
+                "quest": document.getElementById('quest').value
+            });
+            conn.send("update");
+        }
+
+        async function onLoad() {
+            let data = await quests('index', {})
+            for (let index = 0; index < data.length; index++) {
+                document.getElementById('layout').innerHTML = document.getElementById('layout').innerHTML +
+                    drawStr(data[index].quest, data[index].id, data[index].status);
+            }
+        }
+        onLoad();
+    </script>
+</body>
+
+</html>

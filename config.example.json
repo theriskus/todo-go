@@ -1,0 +1,11 @@
+{
+    "db": [
+      {
+        "type": "mysql",
+        "login": "root",
+        "password": "",
+        "host": "localhost:3306",
+        "database": "todo"
+      }
+    ]
+}
